@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="description" content="لعب تضيع بيها وقتك و تتبضن شويا برضو" />
+
+<meta  name="title" content="ضيع وقتك" />
+<meta  name="image"    content="cc.jpg"     />
+
+<title>لعبة التحدي 🔥</title>
+<style>
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+#gameArea{
+    position:relative;
+    width:100%;
+    height:65vh;
+    background:#222;
+    overflow:hidden;
+    margin-top:10px;
+}
+.circle{
+    position:absolute;
+    border-radius:50%;
+    cursor:pointer;
+}
+button, select{
+    padding:8px 15px;
+    font-size:16px;
+    margin:5px;
+}
+#timer{
+    font-size:20px;
+    margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>🎯 لعبة التحدي</h1>
+<h2>النقاط: <span id="score">0</span></h2>
+<div id="timer">الوقت: 30</div>
+
+<select id="level">
+    <option value="easy">🟢 سهل</option>
+    <option value="hard">🟡 صعب</option>
+    <option value="veryhard">🔴 صعب جدًا</option>
+    <option value="insane">☠️ صعب جدًا جدًا جدًا</option>
+</select>
+
+<button onclick="startGame()">ابدأ اللعب</button>
+
+<div id="gameArea"></div>
+
+<script>
+let score = 0;
+let timeLeft = 30;
+let gameInterval;
+let timerInterval;
+let gameArea = document.getElementById("gameArea");
+
+function startGame(){
+    score = 0;
+    let level = document.getElementById("level").value;
+
+    if(level === "insane"){
+        timeLeft = 10;
+    } else {
+        timeLeft = 30;
+    }
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("timer").textContent = "الوقت: " + timeLeft;
+    gameArea.innerHTML = "";
+
+    clearInterval(gameInterval);
+    clearInterval(timerInterval);
+
+    let speed;
+
+    if(level === "easy") speed = 900;
+    if(level === "hard") speed = 600;
+    if(level === "veryhard") speed = 350;
+    if(level === "insane") speed = 200;
+
+    gameInterval = setInterval(()=>{
+        if(level === "insane"){
+            createCircle();
+            createCircle();
+            createCircle();
+        } else {
+            createCircle();
+        }
+    }, speed);
+
+    timerInterval = setInterval(()=>{
+        timeLeft--;
+        document.getElementById("timer").textContent = "الوقت: " + timeLeft;
+        if(timeLeft <= 0){
+            endGame();
+        }
+    },1000);
+}
+
+function createCircle(){
+    let circle = document.createElement("div");
+    let size = Math.random()*50 + 25;
+
+    circle.classList.add("circle");
+    circle.style.width = size+"px";
+    circle.style.height = size+"px";
+    circle.style.background = `hsl(${Math.random()*360},70%,50%)`;
+    circle.style.left = Math.random()*(gameArea.clientWidth-size)+"px";
+    circle.style.top = Math.random()*(gameArea.clientHeight-size)+"px";
+
+    // حركة عشوائية أثناء وجود الكرة
+    let dx = (Math.random()-0.5)*5; // حركة أفقية
+    let dy = (Math.random()-0.5)*5; // حركة رأسية
+
+    let moveInterval = setInterval(()=>{
+        let left = parseFloat(circle.style.left) + dx;
+        let top = parseFloat(circle.style.top) + dy;
+
+        // حدود gameArea
+        if(left < 0 || left > gameArea.clientWidth - size) dx *= -1;
+        if(top < 0 || top > gameArea.clientHeight - size) dy *= -1;
+
+        circle.style.left = left + "px";
+        circle.style.top = top + "px";
+    }, 20);
+
+    circle.onclick = function(){
+        score++;
+        document.getElementById("score").textContent = score;
+        clearInterval(moveInterval); // توقف الحركة عند الضغط
+        circle.remove();
+    };
+
+    gameArea.appendChild(circle);
+
+    setTimeout(()=>{
+        clearInterval(moveInterval); // وقف الحركة عند انتهاء الوقت
+        if(circle.parentNode){
+            circle.remove();
+        }
+    },700);
+}
+
+function endGame(){
+    clearInterval(gameInterval);
+    clearInterval(timerInterval);
+
+    let message = "";
+
+    if(score < 15){
+        message = " اي السكور ده يلا يخول من هنا متلعبش اللعبه دي تاني ";
+    } 
+    else if(score < 20){
+        message = "لو جيبت عيل عنده 3 سنين هيجيب سكور أعلى منك 😭";
+    } 
+    else if(score < 30){
+        message = "شاطر يعم 👏 بس فيه أحسن!";
+    } 
+    else{
+        message = " فحل و قدوه و دولي و بتستر 😳🔥\nيعم إنت تعلمني!";
+    }
+
+    alert("انتهى الوقت ⏳\nنتيجتك: " + score + "\n\n" + message);
+}
+</script>
+
+</body>
+</html>
